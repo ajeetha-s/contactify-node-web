@@ -44,10 +44,23 @@ const Index = () => {
     setIsSubmitting(true);
     
     try {
-      // Simulate API call - replace with actual backend call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/contact-form`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify(data),
+        }
+      );
+
+      const result = await response.json();
       
-      console.log("Form submitted:", data);
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to send message');
+      }
       
       setIsSuccess(true);
       form.reset();
@@ -59,6 +72,7 @@ const Index = () => {
       
       setTimeout(() => setIsSuccess(false), 3000);
     } catch (error) {
+      console.error('Contact form error:', error);
       toast({
         title: "Error sending message",
         description: "Please try again later.",
